@@ -79,7 +79,7 @@ function bestDescription(description: string, content: string): string {
 // Filtra articoli non rilevanti per finanza/geopolitica
 function isRelevant(title: string, description: string): boolean {
   const text = `${title} ${description}`.toLowerCase();
-  const irrelevant = /\b(ricetta|cucina|oroscopo|gossip|reality|serie tv|calcio|sport|meteo|moda|bellezza|chirurgia estetica|auto guida)\b/;
+  const irrelevant = /\b(ricetta|cucina|oroscopo|gossip|reality|serie tv|calcio|sport|meteo|moda|bellezza|chirurgia estetica|auto guida|oscar|academy award|film|cinema|attore|attrice|attori|attrici|regist[ai]|regia|red carpet|hollywood|box office|nomination|premiazione|premio oscar|golden globe|cannes|venezia mostra|festival del cinema|celebrity|celebrit[àa]|spettacolo|intrattenimento|entertainment|show business|concert[oi]|musica|cantante|album|singolo|tour|rapper|pop star|talent show)\b/;
   return !irrelevant.test(text);
 }
 
