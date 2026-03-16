@@ -6,7 +6,7 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-bold text-foreground mb-3">Disclaimer</h3>
             <p className="text-xs text-muted leading-relaxed">
-              Le informazioni fornite da MyNews sono a scopo esclusivamente informativo e non costituiscono consulenza finanziaria,
+              Le informazioni fornite da My News sono a scopo esclusivamente informativo e non costituiscono consulenza finanziaria,
               raccomandazione di investimento o sollecitazione all&apos;acquisto o vendita di strumenti finanziari.
               Ogni decisione di investimento deve essere presa in autonomia e sotto la propria responsabilit&agrave;.
             </p>
@@ -22,7 +22,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-bold text-foreground mb-3">MyNews</h3>
+            <h3 className="text-sm font-bold text-foreground mb-3">My News</h3>
             <p className="text-xs text-muted leading-relaxed mb-2">
               Aggregatore di notizie finanziarie e geopolitiche per decisioni di portafoglio informate.
             </p>
@@ -31,7 +31,7 @@ export default function Footer() {
 
         <div className="mt-8 pt-4 border-t border-border-color text-center">
           <p className="text-xs text-muted">
-            &copy; {new Date().getFullYear()} MyNews by Jacopo Gambi — Decisioni informate, ogni giorno
+            &copy; {new Date().getFullYear()} My News by Jacopo Gambi — Decisioni informate, ogni giorno
           </p>
         </div>
       </div>

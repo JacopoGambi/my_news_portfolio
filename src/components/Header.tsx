@@ -26,7 +26,7 @@ export default function Header({ lastUpdated, isDemo }: HeaderProps) {
           <div className="flex items-center gap-2">
             <Activity className="text-accent" size={28} />
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-foreground">MyNews</h1>
+              <h1 className="text-xl font-bold tracking-tight text-foreground">My News</h1>
               <p className="text-[11px] text-muted -mt-0.5 hidden sm:block">by Jacopo Gambi — Decisioni informate, ogni giorno</p>
             </div>
           </div>
