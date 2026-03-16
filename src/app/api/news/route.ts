@@ -97,39 +97,10 @@ async function fetchFromFinnhub(): Promise<NewsItem[]> {
 }
 
 export async function GET() {
-  let isDemo = true;
-  let news: NewsItem[] = [];
-
-  const [newsApiResults, finnhubResults] = await Promise.all([
-    fetchFromNewsAPI(),
-    fetchFromFinnhub(),
-  ]);
-
-  if (newsApiResults.length > 0 || finnhubResults.length > 0) {
-    isDemo = false;
-    news = [...newsApiResults, ...finnhubResults];
-    // Deduplica per titolo simile
-    const seen = new Set<string>();
-    news = news.filter(n => {
-      const key = n.title.toLowerCase().slice(0, 40);
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-    // Ordina per impatto e data
-    const impactOrder = { high: 0, medium: 1, low: 2 };
-    news.sort((a, b) => {
-      const impactDiff = impactOrder[a.impact] - impactOrder[b.impact];
-      if (impactDiff !== 0) return impactDiff;
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-    });
-  } else {
-    news = mockNews;
-  }
-
+  // Usa i dati editoriali curati — le API news gratuite non funzionano in produzione
   const response: ApiResponse<NewsItem[]> = {
-    data: news,
-    isDemo,
+    data: mockNews,
+    isDemo: true,
     lastUpdated: new Date().toISOString(),
   };
 
