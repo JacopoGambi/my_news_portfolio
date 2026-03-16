@@ -6,7 +6,8 @@
       "Bash(cd:*)",
       "Read(//c/Users/jacop/Desktop/**)",
       "Bash(npx create-next-app@latest mynews-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack --use-npm)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "WebFetch(domain:mynewsportfolio.vercel.app)"
     ]
   }
 }
