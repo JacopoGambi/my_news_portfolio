@@ -2,21 +2,21 @@ import { MarketItem, NewsItem, CalendarEvent } from './types';
 
 export const mockMarketData: MarketItem[] = [
   // Indici
-  { symbol: 'SPX', name: 'S&P 500', price: 5667.56, change: 42.31, changePercent: 0.75, category: 'index' },
-  { symbol: 'IXIC', name: 'NASDAQ', price: 17808.34, change: -23.45, changePercent: -0.13, category: 'index' },
-  { symbol: 'FTSEMIB', name: 'FTSE MIB', price: 38245.12, change: 312.78, changePercent: 0.82, category: 'index' },
-  { symbol: 'GDAXI', name: 'DAX', price: 22456.89, change: 156.34, changePercent: 0.70, category: 'index' },
-  { symbol: 'N225', name: 'Nikkei 225', price: 38912.45, change: -187.23, changePercent: -0.48, category: 'index' },
+  { symbol: 'SPX', name: 'S&P 500', price: 6775.80, change: -5.42, changePercent: -0.08, category: 'index' },
+  { symbol: 'IXIC', name: 'NASDAQ', price: 22716.14, change: 18.17, changePercent: 0.08, category: 'index' },
+  { symbol: 'FTSEMIB', name: 'FTSE MIB', price: 44085.89, change: -687.07, changePercent: -1.53, category: 'index' },
+  { symbol: 'GDAXI', name: 'DAX', price: 23640.03, change: -328.45, changePercent: -1.37, category: 'index' },
+  { symbol: 'N225', name: 'Nikkei 225', price: 53138.42, change: -682.86, changePercent: -1.27, category: 'index' },
   // Materie prime
-  { symbol: 'GC=F', name: 'Oro', price: 2987.40, change: 18.50, changePercent: 0.62, category: 'commodity' },
-  { symbol: 'CL=F', name: 'Petrolio WTI', price: 68.42, change: -1.23, changePercent: -1.77, category: 'commodity' },
-  { symbol: 'SI=F', name: 'Argento', price: 33.85, change: 0.47, changePercent: 1.41, category: 'commodity' },
+  { symbol: 'GC=F', name: 'Oro', price: 4980.00, change: -50.20, changePercent: -1.00, category: 'commodity' },
+  { symbol: 'CL=F', name: 'Petrolio WTI', price: 98.01, change: 1.29, changePercent: 1.33, category: 'commodity' },
+  { symbol: 'SI=F', name: 'Argento', price: 79.50, change: -1.82, changePercent: -2.23, category: 'commodity' },
   // Crypto
-  { symbol: 'BTC', name: 'Bitcoin', price: 84235.67, change: 1245.89, changePercent: 1.50, category: 'crypto' },
-  { symbol: 'ETH', name: 'Ethereum', price: 1925.34, change: -42.12, changePercent: -2.14, category: 'crypto' },
+  { symbol: 'BTC', name: 'Bitcoin', price: 73000.00, change: 6800.00, changePercent: 10.27, category: 'crypto' },
+  { symbol: 'ETH', name: 'Ethereum', price: 2263.38, change: 242.38, changePercent: 11.99, category: 'crypto' },
   // Valute
-  { symbol: 'EURUSD', name: 'EUR/USD', price: 1.0892, change: 0.0023, changePercent: 0.21, category: 'currency' },
-  { symbol: 'EURGBP', name: 'EUR/GBP', price: 0.8367, change: -0.0012, changePercent: -0.14, category: 'currency' },
+  { symbol: 'EURUSD', name: 'EUR/USD', price: 1.1416, change: -0.0034, changePercent: -0.30, category: 'currency' },
+  { symbol: 'EURGBP', name: 'EUR/GBP', price: 0.8630, change: 0.0018, changePercent: 0.21, category: 'currency' },
 ];
 
 export const mockNews: NewsItem[] = [

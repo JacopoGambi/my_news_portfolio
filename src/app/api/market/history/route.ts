@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import YahooFinance from 'yahoo-finance2';
+
+const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 export interface HistoryPoint {
   date: string;
@@ -7,55 +10,22 @@ export interface HistoryPoint {
 
 type Period = '1D' | '1W' | '1M' | '3M' | '1Y';
 
-function generateMockHistory(basePrice: number, period: Period): HistoryPoint[] {
-  const points: HistoryPoint[] = [];
-  const now = new Date();
-  let count: number;
-  let stepMs: number;
+// Mappa simbolo interno → simbolo Yahoo Finance
+const YAHOO_SYMBOLS: Record<string, string> = {
+  SPX: '^GSPC', IXIC: '^IXIC', FTSEMIB: 'FTSEMIB.MI', GDAXI: '^GDAXI',
+  N225: '^N225', 'GC=F': 'GC=F', 'CL=F': 'CL=F', 'SI=F': 'SI=F',
+  BTC: 'BTC-USD', ETH: 'ETH-USD', EURUSD: 'EURUSD=X', EURGBP: 'EURGBP=X',
+};
 
-  switch (period) {
-    case '1D':
-      count = 78; // ~6.5h of trading, 5min intervals
-      stepMs = 5 * 60 * 1000;
-      break;
-    case '1W':
-      count = 35; // 5 days, ~7 points/day
-      stepMs = 3 * 60 * 60 * 1000;
-      break;
-    case '1M':
-      count = 22;
-      stepMs = 24 * 60 * 60 * 1000;
-      break;
-    case '3M':
-      count = 65;
-      stepMs = 24 * 60 * 60 * 1000;
-      break;
-    case '1Y':
-      count = 52;
-      stepMs = 7 * 24 * 60 * 60 * 1000;
-      break;
-  }
+const INTERVAL_MAP: Record<Period, '5m' | '30m' | '1d' | '1wk'> = {
+  '1D': '5m',
+  '1W': '30m',
+  '1M': '1d',
+  '3M': '1d',
+  '1Y': '1wk',
+};
 
-  const volatility = basePrice * 0.008;
-  let price = basePrice * (1 - (Math.random() * 0.05));
-
-  for (let i = count; i >= 0; i--) {
-    const date = new Date(now.getTime() - i * stepMs);
-    price += (Math.random() - 0.48) * volatility;
-    price = Math.max(price, basePrice * 0.85);
-    points.push({
-      date: date.toISOString(),
-      price: Math.round(price * 100) / 100,
-    });
-  }
-
-  // Ensure last point matches current price
-  if (points.length > 0) {
-    points[points.length - 1].price = basePrice;
-  }
-
-  return points;
-}
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -71,15 +41,37 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid period' }, { status: 400 });
   }
 
-  // Base prices for mock generation
-  const basePrices: Record<string, number> = {
-    SPX: 5667.56, IXIC: 17808.34, FTSEMIB: 38245.12, GDAXI: 22456.89,
-    N225: 38912.45, 'GC=F': 2987.40, 'CL=F': 68.42, 'SI=F': 33.85,
-    BTC: 84235.67, ETH: 1925.34, EURUSD: 1.0892, EURGBP: 0.8367,
-  };
+  const yahooSymbol = YAHOO_SYMBOLS[symbol] || symbol;
+  const interval = INTERVAL_MAP[period];
+  const period1 = getStartDate(period);
 
-  const basePrice = basePrices[symbol] || 100;
-  const history = generateMockHistory(basePrice, period);
+  try {
+    const result = await yahooFinance.chart(yahooSymbol, {
+      period1,
+      interval,
+    });
 
-  return NextResponse.json({ symbol, period, data: history });
+    const history: HistoryPoint[] = (result.quotes || [])
+      .filter((q: { close?: number | null; date?: Date | null }) => q.close != null && q.date != null)
+      .map((q: { close?: number | null; date?: Date | null }) => ({
+        date: q.date!.toISOString(),
+        price: Math.round(q.close! * 100) / 100,
+      }));
+
+    return NextResponse.json({ symbol, period, data: history });
+  } catch (error) {
+    console.error(`Yahoo Finance chart error for ${yahooSymbol}:`, error);
+    return NextResponse.json({ symbol, period, data: [] });
+  }
+}
+
+function getStartDate(period: Period): Date {
+  const now = new Date();
+  switch (period) {
+    case '1D': return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    case '1W': return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    case '1M': return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    case '3M': return new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+    case '1Y': return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+  }
 }
