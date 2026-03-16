@@ -15,11 +15,9 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-bold text-foreground mb-3">Fonti Dati</h3>
             <ul className="text-xs text-muted space-y-1.5">
-              <li>Reuters, Bloomberg, Financial Times</li>
-              <li>Il Sole 24 Ore, ANSA Economia</li>
-              <li>MarketWatch, CNBC</li>
-              <li>CoinGecko, Alpha Vantage</li>
-              <li>NewsAPI, Finnhub</li>
+              <li>Yahoo Finance (dati di mercato in tempo reale)</li>
+              <li>CoinGecko (criptovalute)</li>
+              <li>Notizie curate da fonti italiane e internazionali</li>
             </ul>
           </div>
 
