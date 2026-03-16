@@ -50,12 +50,42 @@ interface GNewsResponse {
   articles: GNewsArticle[];
 }
 
-// Pulisce la description GNews: rimuove "Scopri di più", "Leggi tutto", etc.
-function cleanDescription(text: string): string {
-  return text
-    .replace(/\s*(Scopri di più|Leggi tutto|Continua a leggere|Read more|\.{3,}\s*$)/gi, '')
-    .replace(/\s*\(\w+\)\s*$/, '')
+// Pattern di testo spazzatura (cookie banner, descrizioni generiche del giornale)
+const JUNK_PATTERNS = /pubblicità personalizzata|cookie|consenso|quotidiano di .+ e provincia|notizie di cronaca, politica, economia, sport|per raccontarti ogni giorno|visualizzato su un altro dispositivo|potrai continuare a leggere|accedi con il tuo account|iscriviti alla newsletter|registrati per continuare|abbonati per leggere/i;
+
+// Sceglie il testo migliore tra description e content
+function bestDescription(description: string, content: string): string {
+  const descIsJunk = !description || description.length < 30 || JUNK_PATTERNS.test(description);
+  const contentIsJunk = !content || JUNK_PATTERNS.test(content);
+
+  let text: string;
+  if (!descIsJunk && !contentIsJunk) {
+    // Entrambi validi: usa il più lungo
+    text = content.length > description.length ? content : description;
+  } else if (!contentIsJunk) {
+    text = content;
+  } else if (!descIsJunk) {
+    text = description;
+  } else {
+    // Entrambi spazzatura: usa description come fallback
+    text = description || content || '';
+  }
+
+  // Pulisci artefatti
+  text = text
+    .replace(/\s*\[\d+ chars\]\s*$/, '')
+    .replace(/\s*(Scopri di più|Leggi tutto|Continua a leggere|Read more)\.?\s*$/gi, '')
+    .replace(/\.{3,}\s*$/, '')
     .trim();
+
+  // Tronca a 500 chars all'ultima frase completa
+  if (text.length > 500) {
+    const truncated = text.slice(0, 500);
+    const lastDot = truncated.lastIndexOf('.');
+    text = lastDot > 200 ? truncated.slice(0, lastDot + 1) : truncated + '…';
+  }
+
+  return text;
 }
 
 // Filtra articoli non rilevanti per finanza/geopolitica
@@ -111,7 +141,7 @@ async function fetchFromGNews(): Promise<NewsItem[]> {
       .map((a, i) => ({
         id: `gnews-${i}`,
         title: a.title,
-        description: cleanDescription(a.description || ''),
+        description: bestDescription(a.description || '', a.content || ''),
         source: a.source?.name || 'GNews',
         url: a.url || '#',
         publishedAt: a.publishedAt,
