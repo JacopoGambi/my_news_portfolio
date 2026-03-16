@@ -1,0 +1,49 @@
+'use client';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import type { MarketItem } from '@/lib/types';
+
+const categoryLabels: Record<MarketItem['category'], string> = {
+  index: 'Indice',
+  commodity: 'Materia Prima',
+  crypto: 'Crypto',
+  currency: 'Valuta',
+};
+
+export default function MarketCard({ item }: { item: MarketItem }) {
+  const isPositive = item.changePercent > 0;
+  const isNeutral = item.changePercent === 0;
+  const colorClass = isNeutral ? 'text-muted' : isPositive ? 'text-positive' : 'text-negative';
+  const bgTint = isNeutral
+    ? 'border-border-color'
+    : isPositive
+      ? 'border-positive/20 hover:border-positive/40'
+      : 'border-negative/20 hover:border-negative/40';
+
+  const formatPrice = (price: number) => {
+    if (item.category === 'currency') return price.toFixed(4);
+    if (price >= 10000) return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return price.toFixed(2);
+  };
+
+  return (
+    <div className={`bg-card-bg rounded-xl border ${bgTint} p-4 transition-all duration-300 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5`}>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] font-medium text-muted uppercase tracking-wider">
+          {categoryLabels[item.category]}
+        </span>
+        <span className="text-[10px] text-muted font-mono">{item.symbol}</span>
+      </div>
+      <p className="text-sm font-semibold text-foreground mb-2 truncate">{item.name}</p>
+      <p className="text-lg font-bold text-foreground font-mono">{formatPrice(item.price)}</p>
+      <div className={`flex items-center gap-1 mt-1 ${colorClass}`}>
+        {isNeutral ? <Minus size={14} /> : isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+        <span className="text-sm font-semibold font-mono">
+          {isPositive ? '+' : ''}{item.changePercent.toFixed(2)}%
+        </span>
+        <span className="text-xs text-muted ml-1">
+          ({isPositive ? '+' : ''}{item.change.toFixed(2)})
+        </span>
+      </div>
+    </div>
+  );
+}
