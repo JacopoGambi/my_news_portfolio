@@ -50,6 +50,19 @@ interface GNewsResponse {
   articles: GNewsArticle[];
 }
 
+// Pulisce il content GNews: rimuove suffissi "[XXX chars]" e tronca a una frase completa
+function cleanContent(text: string, maxLen: number): string {
+  // Rimuovi il suffisso "... [684 chars]" aggiunto da GNews
+  let cleaned = text.replace(/\s*\[\d+ chars\]\s*$/, '').replace(/\.\.\.\s*$/, '');
+  if (cleaned.length > maxLen) {
+    // Tronca all'ultimo punto entro il limite
+    const truncated = cleaned.slice(0, maxLen);
+    const lastDot = truncated.lastIndexOf('.');
+    cleaned = lastDot > maxLen * 0.5 ? truncated.slice(0, lastDot + 1) : truncated + '…';
+  }
+  return cleaned;
+}
+
 // Filtra articoli non rilevanti per finanza/geopolitica
 function isRelevant(title: string, description: string): boolean {
   const text = `${title} ${description}`.toLowerCase();
@@ -103,7 +116,7 @@ async function fetchFromGNews(): Promise<NewsItem[]> {
       .map((a, i) => ({
         id: `gnews-${i}`,
         title: a.title,
-        description: (a.description || a.content || '').slice(0, 400),
+        description: cleanContent(a.content || a.description || '', 600),
         source: a.source?.name || 'GNews',
         url: a.url || '#',
         publishedAt: a.publishedAt,
