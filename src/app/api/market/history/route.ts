@@ -26,6 +26,7 @@ const INTERVAL_MAP: Record<Period, '5m' | '30m' | '1d' | '1wk'> = {
 };
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;

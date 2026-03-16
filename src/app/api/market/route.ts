@@ -5,6 +5,10 @@ import type { MarketItem, ApiResponse } from '@/lib/types';
 
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
+// Cache in-memory per ridurre chiamate a Yahoo e evitare rate limiting
+let cachedData: { data: MarketItem[]; timestamp: number } | null = null;
+const CACHE_TTL = 90_000; // 90 secondi
+
 // Mappa dei simboli Yahoo Finance → simbolo interno + metadata
 const SYMBOLS: Array<{
   yahoo: string;
@@ -31,11 +35,35 @@ const SYMBOLS: Array<{
 ];
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
+
+// Fetch con timeout per evitare hang su Vercel
+async function fetchWithTimeout<T>(fn: () => Promise<T>, timeoutMs: number): Promise<T> {
+  return Promise.race([
+    fn(),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Yahoo Finance timeout')), timeoutMs)
+    ),
+  ]);
+}
 
 export async function GET() {
+  // Restituisci dati cached se ancora validi
+  if (cachedData && Date.now() - cachedData.timestamp < CACHE_TTL) {
+    const response: ApiResponse<MarketItem[]> = {
+      data: cachedData.data,
+      isDemo: false,
+      lastUpdated: new Date(cachedData.timestamp).toISOString(),
+    };
+    return NextResponse.json(response);
+  }
+
   try {
     const yahooSymbols = SYMBOLS.map(s => s.yahoo);
-    const quotes = await yahooFinance.quote(yahooSymbols);
+    const quotes = await fetchWithTimeout(
+      () => yahooFinance.quote(yahooSymbols),
+      8000
+    );
 
     // Normalizza: quote() può restituire un singolo oggetto o un array
     const quotesArray = Array.isArray(quotes) ? quotes : [quotes];
@@ -76,6 +104,11 @@ export async function GET() {
       return q && q.regularMarketPrice != null;
     }).length;
 
+    // Aggiorna cache solo se abbiamo dati live
+    if (liveCount > 0) {
+      cachedData = { data: marketData, timestamp: Date.now() };
+    }
+
     const response: ApiResponse<MarketItem[]> = {
       data: marketData,
       isDemo: liveCount === 0,
@@ -85,6 +118,16 @@ export async function GET() {
     return NextResponse.json(response);
   } catch (error) {
     console.error('Yahoo Finance fetch error:', error);
+
+    // Se abbiamo dati cached (anche scaduti), usali come fallback
+    if (cachedData) {
+      const response: ApiResponse<MarketItem[]> = {
+        data: cachedData.data,
+        isDemo: false,
+        lastUpdated: new Date(cachedData.timestamp).toISOString(),
+      };
+      return NextResponse.json(response);
+    }
 
     // Fallback completo ai dati mock
     const response: ApiResponse<MarketItem[]> = {
