@@ -11,9 +11,16 @@ export const maxDuration = 15;
 
 function categorizeNews(title: string, description: string): NewsCategory {
   const text = `${title} ${description}`.toLowerCase();
+  const titleLower = title.toLowerCase();
+  // Banche Centrali — sempre priorità massima
   if (text.match(/\b(fed |bce|ecb|boj|bank of|tass[oi]|rates?|monetar|interest rate|powell|lagarde|central bank|banca central|politica monetaria)\b/)) return 'Banche Centrali';
+  // Earnings
   if (text.match(/\b(earning|trimestral|ricavi|profitt|quarter|eps|revenue|results|utili|bilancio societar|guidance|fatturato)\b/)) return 'Earnings';
+  // Mercati — se il TITOLO parla di prezzi/asset, è Mercati anche se menziona geopolitica
+  if (titleLower.match(/\b(prezzo|prezzi|barile|dollari al barile|borsa|borse|listini|piazza affari|wall street|nasdaq|s&p|azioni|titoli|rally|crollo|rialzo|calo|spread|rendiment|obbligazion|bond|futures|etf|bitcoin|crypto|oro al|petrolio a|argento)\b/)) return 'Mercati';
+  // Geopolitica
   if (text.match(/\b(guerra|war|sanzioni|sanctions|dazi|tariff|geopolit|elezioni|election|nato|conflict|iran|russia|china|cina|trump|missile|militar[ei]|diplomaz|medio oriente|ucraina|palestin|israele|israeli|soldati|raid|teheran|kiev|mosca|pechino|assedio|bombardament|arma|armi|nucleare|pasdaran|hezbollah|hamas|cisgiordania|gaza|striscia|ceceni|esercito|invasione|occupazione|coloni|attacco|attacchi)\b/)) return 'Geopolitica';
+  // Macro
   if (text.match(/\b(pil|gdp|inflazione|inflation|cpi|pmi|occupazione|unemployment|jobs|disoccupazione|macro|retail sales|consumer|istat|eurostat|debito pubblico)\b/)) return 'Macro';
   return 'Mercati';
 }
