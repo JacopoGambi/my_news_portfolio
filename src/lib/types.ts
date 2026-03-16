@@ -21,17 +21,6 @@ export interface NewsItem {
 
 export type NewsCategory = 'Mercati' | 'Geopolitica' | 'Banche Centrali' | 'Earnings' | 'Macro';
 
-export interface CalendarEvent {
-  id: string;
-  date: string;
-  time: string;
-  event: string;
-  country: string;
-  impact: 'high' | 'medium' | 'low';
-  forecast?: string;
-  previous?: string;
-}
-
 export interface ApiResponse<T> {
   data: T;
   isDemo: boolean;

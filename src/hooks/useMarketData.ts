@@ -17,7 +17,7 @@ export function useMarketData() {
 
   return {
     marketData: data?.data || [],
-    isDemo: data?.isDemo ?? true,
+    isDemo: data?.isDemo ?? false,
     lastUpdated: data?.lastUpdated || null,
     isLoading,
     error,

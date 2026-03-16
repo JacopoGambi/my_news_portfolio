@@ -31,16 +31,3 @@ export function SkeletonNewsCard() {
     </div>
   );
 }
-
-export function SkeletonCalendarRow() {
-  return (
-    <div className="flex items-center gap-4 p-4 animate-pulse">
-      <div className="h-10 w-16 bg-skeleton rounded" />
-      <div className="flex-1">
-        <div className="h-4 w-3/4 bg-skeleton rounded mb-1" />
-        <div className="h-3 w-1/3 bg-skeleton rounded" />
-      </div>
-      <div className="h-5 w-12 bg-skeleton rounded-full" />
-    </div>
-  );
-}

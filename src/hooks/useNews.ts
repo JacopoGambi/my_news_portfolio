@@ -17,7 +17,7 @@ export function useNews() {
 
   return {
     news: data?.data || [],
-    isDemo: data?.isDemo ?? true,
+    isDemo: data?.isDemo ?? false,
     lastUpdated: data?.lastUpdated || null,
     isLoading,
     error,

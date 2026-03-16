@@ -5,7 +5,6 @@ import Header from './Header';
 import MarketOverview from './MarketOverview';
 import TopNews from './TopNews';
 import NewsByCategory from './NewsByCategory';
-import EconomicCalendar from './EconomicCalendar';
 import Footer from './Footer';
 
 export default function Dashboard() {
@@ -22,7 +21,6 @@ export default function Dashboard() {
         <MarketOverview />
         <TopNews />
         <NewsByCategory />
-        <EconomicCalendar />
       </main>
       <Footer />
     </div>

@@ -1,4 +1,4 @@
-import { MarketItem, NewsItem, CalendarEvent } from './types';
+import { MarketItem, NewsItem } from './types';
 
 export const mockMarketData: MarketItem[] = [
   // Indici (prezzi in EUR)
@@ -107,84 +107,5 @@ export const mockNews: NewsItem[] = [
     category: 'Geopolitica',
     impact: 'high',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=450&fit=crop',
-  },
-];
-
-export const mockCalendar: CalendarEvent[] = [
-  {
-    id: '1',
-    date: '2026-03-18',
-    time: '14:30',
-    event: 'Riunione FOMC - Decisione Tassi FED',
-    country: 'US',
-    impact: 'high',
-    forecast: '4.25%',
-    previous: '4.50%',
-  },
-  {
-    id: '2',
-    date: '2026-03-19',
-    time: '10:00',
-    event: 'Indice ZEW Sentiment Economico - Germania',
-    country: 'DE',
-    impact: 'medium',
-    forecast: '45.2',
-    previous: '43.7',
-  },
-  {
-    id: '3',
-    date: '2026-03-20',
-    time: '13:45',
-    event: 'Riunione BCE - Decisione Tassi',
-    country: 'EU',
-    impact: 'high',
-    forecast: '2.50%',
-    previous: '2.65%',
-  },
-  {
-    id: '4',
-    date: '2026-03-21',
-    time: '08:00',
-    event: 'PIL UK Q4 (finale)',
-    country: 'GB',
-    impact: 'medium',
-    forecast: '0.3%',
-    previous: '0.1%',
-  },
-  {
-    id: '5',
-    date: '2026-03-24',
-    time: '15:00',
-    event: 'Vendite Case Esistenti USA',
-    country: 'US',
-    impact: 'low',
-    forecast: '4.15M',
-    previous: '4.08M',
-  },
-  {
-    id: '6',
-    date: '2026-03-25',
-    time: '00:50',
-    event: 'Riunione BoJ - Verbali',
-    country: 'JP',
-    impact: 'medium',
-  },
-  {
-    id: '7',
-    date: '2026-03-26',
-    time: '14:30',
-    event: 'PCE Core Price Index USA',
-    country: 'US',
-    impact: 'high',
-    forecast: '2.6%',
-    previous: '2.8%',
-  },
-  {
-    id: '8',
-    date: '2026-03-28',
-    time: 'All Day',
-    event: 'Scadenza Opzioni Trimestrali (Triple Witching)',
-    country: 'US',
-    impact: 'high',
   },
 ];
