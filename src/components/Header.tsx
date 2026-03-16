@@ -1,5 +1,5 @@
 'use client';
-import { Activity } from 'lucide-react';
+import Image from 'next/image';
 
 interface HeaderProps {
   lastUpdated: string | null;
@@ -24,7 +24,7 @@ export default function Header({ lastUpdated, isDemo }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <Activity className="text-accent" size={28} />
+            <Image src="/favicon.ico" alt="My News" width={28} height={28} />
             <div>
               <h1 className="text-xl font-bold tracking-tight text-foreground">My News</h1>
               <p className="text-[11px] text-muted -mt-0.5 hidden sm:block">by Jacopo Gambi — Decisioni informate, ogni giorno</p>
