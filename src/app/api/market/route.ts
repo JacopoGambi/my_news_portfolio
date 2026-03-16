@@ -97,7 +97,7 @@ export async function GET() {
     // Fetch index/commodity data from Alpha Vantage
     const avKey = process.env.ALPHA_VANTAGE_KEY;
     if (avKey) {
-      const symbols = ['SPY', 'QQQ', 'GC=F', 'CL=F'];
+      const symbols = ['SPY', 'QQQ', 'GC=F', 'CL=F', 'SI=F'];
       const mapping: Record<string, string> = { SPY: 'SPX', QQQ: 'IXIC' };
       for (const sym of symbols) {
         const data = await fetchAlphaVantage(sym);

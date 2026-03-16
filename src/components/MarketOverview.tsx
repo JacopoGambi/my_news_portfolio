@@ -20,7 +20,7 @@ export default function MarketOverview() {
       )}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {isLoading
-          ? Array.from({ length: 11 }).map((_, i) => <SkeletonMarketCard key={i} />)
+          ? Array.from({ length: 12 }).map((_, i) => <SkeletonMarketCard key={i} />)
           : marketData.map((item) => <MarketCard key={item.symbol} item={item} />)
         }
       </div>

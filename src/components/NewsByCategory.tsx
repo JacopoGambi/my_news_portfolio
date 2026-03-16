@@ -24,13 +24,13 @@ export default function NewsByCategory() {
     : news.filter(n => n.category === activeTab);
 
   return (
-    <section className="mb-8">
+    <section className="mb-12">
       <div className="flex items-center gap-2 mb-4">
         <Filter size={20} className="text-accent" />
         <h2 className="text-lg font-bold text-foreground">Notizie per Categoria</h2>
       </div>
 
-      <div className="flex gap-2 mb-5 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.value}
@@ -46,18 +46,26 @@ export default function NewsByCategory() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {isLoading
-          ? Array.from({ length: 6 }).map((_, i) => <SkeletonNewsCard key={i} />)
-          : filtered.length > 0
-            ? filtered.map((item) => <NewsCard key={item.id} news={item} />)
-            : (
-              <div className="col-span-full text-center py-12 text-muted">
-                Nessuna notizia in questa categoria al momento.
-              </div>
-            )
-        }
-      </div>
+      {isLoading ? (
+        <div className="space-y-6">
+          {Array.from({ length: 4 }).map((_, i) => <SkeletonNewsCard key={i} />)}
+        </div>
+      ) : filtered.length > 0 ? (
+        <div className="space-y-0">
+          {filtered.map((item, i) => (
+            <div
+              key={item.id}
+              className={`py-5 ${i < filtered.length - 1 ? 'border-b border-border-color/50' : ''}`}
+            >
+              <NewsCard news={item} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16 text-muted">
+          Nessuna notizia in questa categoria al momento.
+        </div>
+      )}
     </section>
   );
 }

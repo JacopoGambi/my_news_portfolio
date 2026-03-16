@@ -1,6 +1,5 @@
 'use client';
 import { Activity } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
 
 interface HeaderProps {
   lastUpdated: string | null;
@@ -48,11 +47,10 @@ export default function Header({ lastUpdated, isDemo }: HeaderProps) {
             </div>
           </div>
           {isDemo && (
-            <span className="px-2 py-0.5 text-[10px] font-semibold bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30">
+            <span className="px-2 py-0.5 text-[10px] font-semibold bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/15">
               DEMO
             </span>
           )}
-          <ThemeToggle />
         </div>
       </div>
     </header>

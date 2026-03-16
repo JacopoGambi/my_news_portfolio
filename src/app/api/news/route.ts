@@ -30,15 +30,16 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
     if (data.status !== 'ok' || !data.articles) return [];
     return data.articles
       .filter((a: { title: string }) => a.title && a.title !== '[Removed]')
-      .map((a: { title: string; description: string; source: { name: string }; url: string; publishedAt: string }, i: number) => ({
+      .map((a: { title: string; description: string; source: { name: string }; url: string; publishedAt: string; urlToImage?: string }, i: number) => ({
         id: `newsapi-${i}`,
         title: a.title,
-        description: (a.description || '').slice(0, 200),
+        description: (a.description || '').slice(0, 300),
         source: a.source?.name || 'NewsAPI',
         url: a.url || '#',
         publishedAt: a.publishedAt,
         category: categorizeNews(a.title, a.description || ''),
         impact: estimateImpact(a.title),
+        imageUrl: a.urlToImage || undefined,
       }));
   } catch {
     return [];
@@ -55,15 +56,16 @@ async function fetchFromFinnhub(): Promise<NewsItem[]> {
     );
     const data = await res.json();
     if (!Array.isArray(data)) return [];
-    return data.slice(0, 10).map((a: { headline: string; summary: string; source: string; url: string; datetime: number }, i: number) => ({
+    return data.slice(0, 10).map((a: { headline: string; summary: string; source: string; url: string; datetime: number; image?: string }, i: number) => ({
       id: `finnhub-${i}`,
       title: a.headline,
-      description: (a.summary || '').slice(0, 200),
+      description: (a.summary || '').slice(0, 300),
       source: a.source || 'Finnhub',
       url: a.url || '#',
       publishedAt: new Date(a.datetime * 1000).toISOString(),
       category: categorizeNews(a.headline, a.summary || ''),
       impact: estimateImpact(a.headline),
+      imageUrl: a.image || undefined,
     }));
   } catch {
     return [];

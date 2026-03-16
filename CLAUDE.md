@@ -1,25 +1,21 @@
 # MyNews — Regole Operative
 
-## Regola 1: Documento di Progetto Obbligatorio
+## Regola 0: Contesto Iniziale (PRIORITA MASSIMA)
 
-Ogni volta che viene richiesta una nuova funzionalità, modifica o cambiamento:
+All'inizio di ogni nuova conversazione, PRIMA di svolgere qualsiasi task:
 
-1. **Verificare data e ora corrente** con il comando di sistema appropriato
-2. **Creare un documento** in `docs/progetto/` con formato nome: `HH:MM-DD-MM-YY.md`
-3. Il documento deve contenere:
-   - **Titolo**: descrizione sintetica della feature/modifica
-   - **Obiettivo**: cosa si vuole ottenere
-   - **Modifiche previste**: lista dei file che verranno creati/modificati
-   - **Approccio tecnico**: come verrà implementata la modifica
-   - **Impatto**: eventuali effetti collaterali o dipendenze
-4. **Solo dopo aver creato il documento**, procedere con l'implementazione
+1. Leggere TUTTI i file `.md` presenti nella cartella `backup/`
+2. Usare il contenuto per ricostruire il contesto di cio che e stato fatto nelle sessioni precedenti
+3. Solo dopo aver letto e compreso il contesto, procedere con la nuova richiesta
 
-## Regola 2: Backup Post-Task
+Questa regola e automatica e non richiede istruzioni da parte dell'utente.
+
+## Regola 1: Backup Post-Task
 
 Dopo ogni task completato, creare un file `.md` nella cartella `backup/` con il contesto della task.
 Il file deve chiamarsi con: `titolo-inerente_HH-MM_DD-MM-YY.md`
 
-## Regola 3: Context7
+## Regola 2: Context7
 
 Prima di usare qualsiasi libreria o framework, consultare Context7 per la documentazione aggiornata.
 Questo include setup, code generation, API references e utilizzo di pacchetti specifici.
@@ -40,7 +36,6 @@ MyNews/
 ├── CLAUDE.md
 ├── README.md
 ├── .env.example
-├── docs/progetto/
 ├── backup/
 ├── src/
 │   ├── app/          # Next.js App Router pages e API routes

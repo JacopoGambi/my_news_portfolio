@@ -14,19 +14,6 @@
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
-/* Light theme overrides */
-.light {
-  --color-main-bg: #f6f8fa;
-  --color-card-bg: #ffffff;
-  --color-border-color: #d0d7de;
-  --color-accent: #0969da;
-  --color-positive: #1a7f37;
-  --color-negative: #cf222e;
-  --color-foreground: #1f2328;
-  --color-muted: #656d76;
-  --color-skeleton: #e1e4e8;
-}
-
 body {
   background: var(--color-main-bg);
   color: var(--color-foreground);

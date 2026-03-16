@@ -16,6 +16,7 @@ export interface NewsItem {
   publishedAt: string;
   category: NewsCategory;
   impact: 'high' | 'medium' | 'low';
+  imageUrl?: string;
 }
 
 export type NewsCategory = 'Mercati' | 'Geopolitica' | 'Banche Centrali' | 'Earnings' | 'Macro';
