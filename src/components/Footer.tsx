@@ -28,15 +28,12 @@ export default function Footer() {
             <p className="text-xs text-muted leading-relaxed mb-2">
               Aggregatore di notizie finanziarie e geopolitiche per decisioni di portafoglio informate.
             </p>
-            <p className="text-xs text-muted">
-              Built with Next.js, Tailwind CSS, SWR
-            </p>
           </div>
         </div>
 
         <div className="mt-8 pt-4 border-t border-border-color text-center">
           <p className="text-xs text-muted">
-            &copy; {new Date().getFullYear()} MyNews — Decisioni informate, ogni giorno
+            &copy; {new Date().getFullYear()} MyNews by Jacopo Gambi — Decisioni informate, ogni giorno
           </p>
         </div>
       </div>

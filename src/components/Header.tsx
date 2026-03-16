@@ -27,7 +27,7 @@ export default function Header({ lastUpdated, isDemo }: HeaderProps) {
             <Activity className="text-accent" size={28} />
             <div>
               <h1 className="text-xl font-bold tracking-tight text-foreground">MyNews</h1>
-              <p className="text-[11px] text-muted -mt-0.5 hidden sm:block">Decisioni informate, ogni giorno</p>
+              <p className="text-[11px] text-muted -mt-0.5 hidden sm:block">by Jacopo Gambi — Decisioni informate, ogni giorno</p>
             </div>
           </div>
         </div>
