@@ -4,7 +4,7 @@ import type { NewsItem, NewsCategory, ApiResponse } from '@/lib/types';
 
 // Cache in-memory
 let cachedData: { data: NewsItem[]; timestamp: number } | null = null;
-const CACHE_TTL = 30 * 60 * 1000; // 30 minuti
+const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 ore
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 15;
