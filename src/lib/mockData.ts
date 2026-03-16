@@ -1,20 +1,20 @@
 import { MarketItem, NewsItem, CalendarEvent } from './types';
 
 export const mockMarketData: MarketItem[] = [
-  // Indici
-  { symbol: 'SPX', name: 'S&P 500', price: 6775.80, change: -5.42, changePercent: -0.08, category: 'index' },
-  { symbol: 'IXIC', name: 'NASDAQ', price: 22716.14, change: 18.17, changePercent: 0.08, category: 'index' },
+  // Indici (prezzi in EUR)
+  { symbol: 'SPX', name: 'S&P 500', price: 5895.00, change: -4.72, changePercent: -0.08, category: 'index' },
+  { symbol: 'IXIC', name: 'NASDAQ', price: 19763.00, change: 15.81, changePercent: 0.08, category: 'index' },
   { symbol: 'FTSEMIB', name: 'FTSE MIB', price: 44085.89, change: -687.07, changePercent: -1.53, category: 'index' },
   { symbol: 'GDAXI', name: 'DAX', price: 23640.03, change: -328.45, changePercent: -1.37, category: 'index' },
-  { symbol: 'N225', name: 'Nikkei 225', price: 53138.42, change: -682.86, changePercent: -1.27, category: 'index' },
-  // Materie prime
-  { symbol: 'GC=F', name: 'Oro', price: 4980.00, change: -50.20, changePercent: -1.00, category: 'commodity' },
-  { symbol: 'CL=F', name: 'Petrolio WTI', price: 98.01, change: 1.29, changePercent: 1.33, category: 'commodity' },
-  { symbol: 'SI=F', name: 'Argento', price: 79.50, change: -1.82, changePercent: -2.23, category: 'commodity' },
-  // Crypto
-  { symbol: 'BTC', name: 'Bitcoin', price: 73000.00, change: 6800.00, changePercent: 10.27, category: 'crypto' },
-  { symbol: 'ETH', name: 'Ethereum', price: 2263.38, change: 242.38, changePercent: 11.99, category: 'crypto' },
-  // Valute
+  { symbol: 'N225', name: 'Nikkei 225', price: 46230.00, change: -594.09, changePercent: -1.27, category: 'index' },
+  // Materie prime (prezzi in EUR)
+  { symbol: 'GC=F', name: 'Oro', price: 4332.60, change: -43.67, changePercent: -1.00, category: 'commodity' },
+  { symbol: 'CL=F', name: 'Petrolio WTI', price: 85.27, change: 1.12, changePercent: 1.33, category: 'commodity' },
+  { symbol: 'SI=F', name: 'Argento', price: 69.17, change: -1.58, changePercent: -2.23, category: 'commodity' },
+  // Crypto (prezzi in EUR da CoinGecko)
+  { symbol: 'BTC', name: 'Bitcoin', price: 64100.00, change: 1500.00, changePercent: 2.40, category: 'crypto' },
+  { symbol: 'ETH', name: 'Ethereum', price: 1978.00, change: 130.00, changePercent: 7.00, category: 'crypto' },
+  // Valute (rapporti, non convertire)
   { symbol: 'EURUSD', name: 'EUR/USD', price: 1.1416, change: -0.0034, changePercent: -0.30, category: 'currency' },
   { symbol: 'EURGBP', name: 'EUR/GBP', price: 0.8630, change: 0.0018, changePercent: 0.21, category: 'currency' },
 ];

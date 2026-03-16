@@ -17,6 +17,11 @@ const YAHOO_SYMBOLS: Record<string, string> = {
   BTC: 'BTC-USD', ETH: 'ETH-USD', EURUSD: 'EURUSD=X', EURGBP: 'EURGBP=X',
 };
 
+// Simboli che necessitano conversione USD→EUR
+const NEEDS_EUR_CONVERSION = new Set([
+  'SPX', 'IXIC', 'N225', 'GC=F', 'CL=F', 'SI=F', 'BTC', 'ETH',
+]);
+
 const INTERVAL_MAP: Record<Period, '5m' | '30m' | '1d' | '1wk'> = {
   '1D': '5m',
   '1W': '30m',
@@ -27,6 +32,18 @@ const INTERVAL_MAP: Record<Period, '5m' | '30m' | '1d' | '1wk'> = {
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
+
+// Fetch tasso USD→EUR
+async function fetchUsdToEur(): Promise<number> {
+  try {
+    const q = await yahooFinance.quote('EURUSD=X');
+    const rate = Array.isArray(q) ? q[0] : q;
+    if (rate?.regularMarketPrice) {
+      return 1 / rate.regularMarketPrice;
+    }
+  } catch { /* fallback */ }
+  return 1 / 1.15;
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -45,18 +62,19 @@ export async function GET(request: NextRequest) {
   const yahooSymbol = YAHOO_SYMBOLS[symbol] || symbol;
   const interval = INTERVAL_MAP[period];
   const period1 = getStartDate(period);
+  const needsConversion = NEEDS_EUR_CONVERSION.has(symbol);
 
   try {
-    const result = await yahooFinance.chart(yahooSymbol, {
-      period1,
-      interval,
-    });
+    const [result, usdToEur] = await Promise.all([
+      yahooFinance.chart(yahooSymbol, { period1, interval }),
+      needsConversion ? fetchUsdToEur() : Promise.resolve(1),
+    ]);
 
     const history: HistoryPoint[] = (result.quotes || [])
       .filter((q: { close?: number | null; date?: Date | null }) => q.close != null && q.date != null)
       .map((q: { close?: number | null; date?: Date | null }) => ({
         date: q.date!.toISOString(),
-        price: Math.round(q.close! * 100) / 100,
+        price: Math.round(q.close! * usdToEur * 100) / 100,
       }));
 
     return NextResponse.json({ symbol, period, data: history });

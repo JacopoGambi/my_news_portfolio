@@ -10,7 +10,8 @@
       "WebFetch(domain:mynewsportfolio.vercel.app)",
       "Bash(npm run:*)",
       "WebSearch",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(node:*)"
     ]
   }
 }

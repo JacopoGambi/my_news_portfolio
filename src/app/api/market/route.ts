@@ -5,46 +5,87 @@ import type { MarketItem, ApiResponse } from '@/lib/types';
 
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
-// Cache in-memory per ridurre chiamate a Yahoo e evitare rate limiting
+// Cache in-memory per ridurre chiamate e evitare rate limiting
 let cachedData: { data: MarketItem[]; timestamp: number } | null = null;
 const CACHE_TTL = 90_000; // 90 secondi
 
-// Mappa dei simboli Yahoo Finance → simbolo interno + metadata
-const SYMBOLS: Array<{
+// Simboli Yahoo Finance (indici, materie prime, valute) — quotati in USD o valuta locale
+const YAHOO_SYMBOLS: Array<{
   yahoo: string;
   symbol: string;
   name: string;
   category: MarketItem['category'];
+  needsConversion: boolean; // true = prezzo in USD, convertire in EUR
 }> = [
-  // Indici
-  { yahoo: '^GSPC', symbol: 'SPX', name: 'S&P 500', category: 'index' },
-  { yahoo: '^IXIC', symbol: 'IXIC', name: 'NASDAQ', category: 'index' },
-  { yahoo: 'FTSEMIB.MI', symbol: 'FTSEMIB', name: 'FTSE MIB', category: 'index' },
-  { yahoo: '^GDAXI', symbol: 'GDAXI', name: 'DAX', category: 'index' },
-  { yahoo: '^N225', symbol: 'N225', name: 'Nikkei 225', category: 'index' },
-  // Materie prime
-  { yahoo: 'GC=F', symbol: 'GC=F', name: 'Oro', category: 'commodity' },
-  { yahoo: 'CL=F', symbol: 'CL=F', name: 'Petrolio WTI', category: 'commodity' },
-  { yahoo: 'SI=F', symbol: 'SI=F', name: 'Argento', category: 'commodity' },
-  // Crypto
-  { yahoo: 'BTC-USD', symbol: 'BTC', name: 'Bitcoin', category: 'crypto' },
-  { yahoo: 'ETH-USD', symbol: 'ETH', name: 'Ethereum', category: 'crypto' },
-  // Valute
-  { yahoo: 'EURUSD=X', symbol: 'EURUSD', name: 'EUR/USD', category: 'currency' },
-  { yahoo: 'EURGBP=X', symbol: 'EURGBP', name: 'EUR/GBP', category: 'currency' },
+  // Indici — quotati nella propria valuta
+  { yahoo: '^GSPC', symbol: 'SPX', name: 'S&P 500', category: 'index', needsConversion: true },
+  { yahoo: '^IXIC', symbol: 'IXIC', name: 'NASDAQ', category: 'index', needsConversion: true },
+  { yahoo: 'FTSEMIB.MI', symbol: 'FTSEMIB', name: 'FTSE MIB', category: 'index', needsConversion: false }, // già in EUR
+  { yahoo: '^GDAXI', symbol: 'GDAXI', name: 'DAX', category: 'index', needsConversion: false }, // già in EUR
+  { yahoo: '^N225', symbol: 'N225', name: 'Nikkei 225', category: 'index', needsConversion: true }, // JPY, convertiamo via USD
+  // Materie prime — quotate in USD
+  { yahoo: 'GC=F', symbol: 'GC=F', name: 'Oro', category: 'commodity', needsConversion: true },
+  { yahoo: 'CL=F', symbol: 'CL=F', name: 'Petrolio WTI', category: 'commodity', needsConversion: true },
+  { yahoo: 'SI=F', symbol: 'SI=F', name: 'Argento', category: 'commodity', needsConversion: true },
+  // Valute — rapporti, non convertire
+  { yahoo: 'EURUSD=X', symbol: 'EURUSD', name: 'EUR/USD', category: 'currency', needsConversion: false },
+  { yahoo: 'EURGBP=X', symbol: 'EURGBP', name: 'EUR/GBP', category: 'currency', needsConversion: false },
+];
+
+// Crypto — le prendiamo da CoinGecko direttamente in EUR
+const CRYPTO_IDS: Array<{ id: string; symbol: string; name: string }> = [
+  { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin' },
+  { id: 'ethereum', symbol: 'ETH', name: 'Ethereum' },
 ];
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-// Fetch con timeout per evitare hang su Vercel
 async function fetchWithTimeout<T>(fn: () => Promise<T>, timeoutMs: number): Promise<T> {
   return Promise.race([
     fn(),
     new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Yahoo Finance timeout')), timeoutMs)
+      setTimeout(() => reject(new Error('Fetch timeout')), timeoutMs)
     ),
   ]);
+}
+
+// Fetch crypto da CoinGecko in EUR
+async function fetchCryptoPrices(): Promise<MarketItem[]> {
+  const ids = CRYPTO_IDS.map(c => c.id).join(',');
+  const res = await fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=eur&include_24hr_change=true`,
+    { signal: AbortSignal.timeout(6000) }
+  );
+  const data = await res.json();
+
+  const results: MarketItem[] = [];
+  for (const c of CRYPTO_IDS) {
+    const info = data[c.id];
+    if (!info) continue;
+    const price = info.eur;
+    const changePercent = info.eur_24h_change ?? 0;
+    const change = price * (changePercent / 100);
+    results.push({
+      symbol: c.symbol,
+      name: c.name,
+      price,
+      change,
+      changePercent,
+      category: 'crypto',
+    });
+  }
+  return results;
+}
+
+// Fetch tasso USD/EUR per conversione
+async function fetchUsdToEur(): Promise<number> {
+  const q = await yahooFinance.quote('EURUSD=X');
+  const rate = Array.isArray(q) ? q[0] : q;
+  if (rate?.regularMarketPrice) {
+    return 1 / rate.regularMarketPrice; // USD→EUR = 1/EURUSD
+  }
+  return 1 / 1.15; // fallback approssimativo
 }
 
 export async function GET() {
@@ -59,52 +100,56 @@ export async function GET() {
   }
 
   try {
-    const yahooSymbols = SYMBOLS.map(s => s.yahoo);
-    const quotes = await fetchWithTimeout(
-      () => yahooFinance.quote(yahooSymbols),
-      8000
-    );
+    // Fetch in parallelo: Yahoo Finance + CoinGecko
+    const [yahooResult, cryptoResult] = await Promise.allSettled([
+      fetchWithTimeout(async () => {
+        const yahooSymbols = YAHOO_SYMBOLS.map(s => s.yahoo);
+        const quotes = await yahooFinance.quote(yahooSymbols);
+        const quotesArray = Array.isArray(quotes) ? quotes : [quotes];
+        const usdToEur = await fetchUsdToEur();
 
-    // Normalizza: quote() può restituire un singolo oggetto o un array
-    const quotesArray = Array.isArray(quotes) ? quotes : [quotes];
+        const quoteMap = new Map<string, (typeof quotesArray)[number]>();
+        for (const q of quotesArray) {
+          if (q && q.symbol) quoteMap.set(q.symbol, q);
+        }
 
-    const quoteMap = new Map<string, (typeof quotesArray)[number]>();
-    for (const q of quotesArray) {
-      if (q && q.symbol) quoteMap.set(q.symbol, q);
+        return YAHOO_SYMBOLS.map((s) => {
+          const q = quoteMap.get(s.yahoo);
+          if (q && q.regularMarketPrice != null) {
+            const conversionRate = s.needsConversion ? usdToEur : 1;
+            return {
+              symbol: s.symbol,
+              name: s.name,
+              price: q.regularMarketPrice * conversionRate,
+              change: (q.regularMarketChange ?? 0) * conversionRate,
+              changePercent: q.regularMarketChangePercent ?? 0,
+              category: s.category,
+            };
+          }
+          return null;
+        }).filter((x): x is MarketItem => x !== null);
+      }, 8000),
+      fetchWithTimeout(() => fetchCryptoPrices(), 8000),
+    ]);
+
+    const yahooData = yahooResult.status === 'fulfilled' ? yahooResult.value : [];
+    const cryptoData = cryptoResult.status === 'fulfilled' ? cryptoResult.value : [];
+
+    // Combina i dati, con fallback ai mock per simboli mancanti
+    const allSymbols = [...YAHOO_SYMBOLS.map(s => s.symbol), ...CRYPTO_IDS.map(c => c.symbol)];
+    const liveMap = new Map<string, MarketItem>();
+    for (const item of [...yahooData, ...cryptoData]) {
+      liveMap.set(item.symbol, item);
     }
 
-    const marketData: MarketItem[] = SYMBOLS.map((s) => {
-      const q = quoteMap.get(s.yahoo);
-
-      if (q && q.regularMarketPrice != null) {
-        return {
-          symbol: s.symbol,
-          name: s.name,
-          price: q.regularMarketPrice,
-          change: q.regularMarketChange ?? 0,
-          changePercent: q.regularMarketChangePercent ?? 0,
-          category: s.category,
-        };
-      }
-
-      // Fallback al mock se il quote non è disponibile
-      const mock = mockMarketData.find(m => m.symbol === s.symbol);
-      return mock ?? {
-        symbol: s.symbol,
-        name: s.name,
-        price: 0,
-        change: 0,
-        changePercent: 0,
-        category: s.category,
-      };
+    const marketData: MarketItem[] = allSymbols.map(symbol => {
+      if (liveMap.has(symbol)) return liveMap.get(symbol)!;
+      const mock = mockMarketData.find(m => m.symbol === symbol);
+      return mock ?? { symbol, name: symbol, price: 0, change: 0, changePercent: 0, category: 'index' };
     });
 
-    const liveCount = SYMBOLS.filter(s => {
-      const q = quoteMap.get(s.yahoo);
-      return q && q.regularMarketPrice != null;
-    }).length;
+    const liveCount = liveMap.size;
 
-    // Aggiorna cache solo se abbiamo dati live
     if (liveCount > 0) {
       cachedData = { data: marketData, timestamp: Date.now() };
     }
@@ -117,9 +162,8 @@ export async function GET() {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Yahoo Finance fetch error:', error);
+    console.error('Market fetch error:', error);
 
-    // Se abbiamo dati cached (anche scaduti), usali come fallback
     if (cachedData) {
       const response: ApiResponse<MarketItem[]> = {
         data: cachedData.data,
@@ -129,7 +173,6 @@ export async function GET() {
       return NextResponse.json(response);
     }
 
-    // Fallback completo ai dati mock
     const response: ApiResponse<MarketItem[]> = {
       data: [...mockMarketData],
       isDemo: true,

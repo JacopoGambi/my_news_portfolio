@@ -24,8 +24,10 @@ export default function MarketCard({ item }: { item: MarketItem }) {
 
   const formatPrice = (price: number) => {
     if (item.category === 'currency') return price.toFixed(4);
-    if (price >= 10000) return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return price.toFixed(2);
+    const formatted = price >= 10000
+      ? price.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : price.toFixed(2);
+    return `€${formatted}`;
   };
 
   return (

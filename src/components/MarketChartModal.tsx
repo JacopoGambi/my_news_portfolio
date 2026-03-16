@@ -36,8 +36,10 @@ function formatDateLabel(iso: string, period: Period): string {
 
 function formatPrice(price: number, category: MarketItem['category']): string {
   if (category === 'currency') return price.toFixed(4);
-  if (price >= 10000) return price.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return price.toFixed(2);
+  const formatted = price >= 10000
+    ? price.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : price.toFixed(2);
+  return `€${formatted}`;
 }
 
 export default function MarketChartModal({ item, onClose }: MarketChartModalProps) {
