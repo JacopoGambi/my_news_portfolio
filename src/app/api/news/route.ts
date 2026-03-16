@@ -50,42 +50,30 @@ interface GNewsResponse {
   articles: GNewsArticle[];
 }
 
-// Pattern di testo spazzatura (cookie banner, descrizioni generiche del giornale)
-const JUNK_PATTERNS = /pubblicità personalizzata|cookie|consenso|quotidiano di .+ e provincia|notizie di cronaca, politica, economia, sport|per raccontarti ogni giorno|visualizzato su un altro dispositivo|potrai continuare a leggere|accedi con il tuo account|iscriviti alla newsletter|registrati per continuare|abbonati per leggere/i;
+// Testo spazzatura: cookie banner, paywall, descrizioni generiche giornale
+const JUNK = /pubblicità personalizzata|cookie|consenso|quotidiano di .+ e provincia|notizie di cronaca, politica, economia, sport|per raccontarti ogni giorno|visualizzato su un altro dispositivo|potrai continuare a leggere|accedi con il tuo account|iscriviti alla newsletter|registrati per continuare|abbonati per leggere/i;
+
+function cleanText(text: string): string {
+  return text
+    .replace(/\s*\[\d+ chars\]\s*$/, '')
+    .replace(/\.{3,}\s*$/, '')
+    .replace(/\s*(Scopri di più|Leggi tutto|Continua a leggere|Read more)\.?\s*$/gi, '')
+    .replace(/\s*\[\u2026\]\s*$/, '')
+    .trim();
+}
 
 // Sceglie il testo migliore tra description e content
 function bestDescription(description: string, content: string): string {
-  const descIsJunk = !description || description.length < 30 || JUNK_PATTERNS.test(description);
-  const contentIsJunk = !content || JUNK_PATTERNS.test(content);
+  const cleanDesc = cleanText(description || '');
+  const cleanCont = cleanText(content || '');
+  const descIsJunk = !cleanDesc || JUNK.test(cleanDesc);
+  const contIsJunk = !cleanCont || JUNK.test(cleanCont);
 
-  let text: string;
-  if (!descIsJunk && !contentIsJunk) {
-    // Entrambi validi: usa il più lungo
-    text = content.length > description.length ? content : description;
-  } else if (!contentIsJunk) {
-    text = content;
-  } else if (!descIsJunk) {
-    text = description;
-  } else {
-    // Entrambi spazzatura: usa description come fallback
-    text = description || content || '';
-  }
-
-  // Pulisci artefatti
-  text = text
-    .replace(/\s*\[\d+ chars\]\s*$/, '')
-    .replace(/\s*(Scopri di più|Leggi tutto|Continua a leggere|Read more)\.?\s*$/gi, '')
-    .replace(/\.{3,}\s*$/, '')
-    .trim();
-
-  // Tronca a 500 chars all'ultima frase completa
-  if (text.length > 500) {
-    const truncated = text.slice(0, 500);
-    const lastDot = truncated.lastIndexOf('.');
-    text = lastDot > 200 ? truncated.slice(0, lastDot + 1) : truncated + '…';
-  }
-
-  return text;
+  // Priorità: content pulito > description pulita > qualsiasi cosa
+  if (!contIsJunk) return cleanCont;
+  if (!descIsJunk) return cleanDesc;
+  // Entrambi spazzatura: prova a usare il più corto (meno spazzatura)
+  return cleanDesc || cleanCont || '';
 }
 
 // Filtra articoli non rilevanti per finanza/geopolitica
