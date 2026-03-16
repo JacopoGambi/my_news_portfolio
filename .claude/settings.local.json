@@ -11,7 +11,14 @@
       "Bash(npm run:*)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:mynews.space)",
+      "WebFetch(domain:gnews.io)",
+      "WebFetch(domain:docs.gnews.io)",
+      "Bash(npx next:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(git add:*)"
     ]
   }
 }
