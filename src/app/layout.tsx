@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'MyNews — Aggregatore Notizie Finanziarie e Geopolitiche',
+  title: 'MyNews',
   description: 'Aggregatore di notizie finanziarie e geopolitiche per decisioni di portafoglio informate. Dati di mercato in tempo reale, notizie da fonti attendibili, calendario economico.',
   keywords: ['finanza', 'mercati', 'notizie', 'trading', 'investimenti', 'geopolitica', 'economia'],
   openGraph: {
