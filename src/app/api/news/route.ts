@@ -4,7 +4,7 @@ import type { NewsItem, NewsCategory, ApiResponse } from '@/lib/types';
 
 // Cache in-memory
 let cachedData: { data: NewsItem[]; timestamp: number } | null = null;
-const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 ore
+const CACHE_TTL = 15 * 60 * 1000; // 15 minuti
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 15;
@@ -145,13 +145,15 @@ async function fetchFromGNews(): Promise<NewsItem[]> {
 
 export async function GET() {
   // Restituisci dati cached se ancora validi
+  const headers = { 'Cache-Control': 'no-store, max-age=0' };
+
   if (cachedData && Date.now() - cachedData.timestamp < CACHE_TTL) {
     const response: ApiResponse<NewsItem[]> = {
       data: cachedData.data,
       isDemo: false,
       lastUpdated: new Date(cachedData.timestamp).toISOString(),
     };
-    return NextResponse.json(response);
+    return NextResponse.json(response, { headers });
   }
 
   // Prova GNews
@@ -165,7 +167,7 @@ export async function GET() {
       isDemo: false,
       lastUpdated: new Date().toISOString(),
     };
-    return NextResponse.json(response);
+    return NextResponse.json(response, { headers });
   }
 
   // Fallback: dati cached scaduti o mock
@@ -175,7 +177,7 @@ export async function GET() {
       isDemo: false,
       lastUpdated: new Date(cachedData.timestamp).toISOString(),
     };
-    return NextResponse.json(response);
+    return NextResponse.json(response, { headers });
   }
 
   const response: ApiResponse<NewsItem[]> = {
@@ -183,5 +185,5 @@ export async function GET() {
     isDemo: true,
     lastUpdated: new Date().toISOString(),
   };
-  return NextResponse.json(response);
+  return NextResponse.json(response, { headers });
 }
