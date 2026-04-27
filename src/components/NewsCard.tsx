@@ -23,9 +23,20 @@ const impactBar = {
   low: 'bg-green-500',
 };
 
+type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
+
+const categoryThumbnail: Record<NewsCategory, { gradient: string; Icon: IconComponent }> = {
+  'Mercati':        { gradient: 'from-blue-900 to-blue-600',    Icon: TrendingUp },
+  'Geopolitica':    { gradient: 'from-orange-900 to-orange-600', Icon: Globe },
+  'Banche Centrali':{ gradient: 'from-purple-900 to-purple-600', Icon: Landmark },
+  'Earnings':       { gradient: 'from-emerald-900 to-emerald-600', Icon: BarChart3 },
+  'Macro':          { gradient: 'from-cyan-900 to-cyan-600',    Icon: PieChart },
+};
+
 export default function NewsCard({ news, isHero = false }: { news: NewsItem; isHero?: boolean }) {
   const impact = impactConfig[news.impact];
   const cat = categoryConfig[news.category] || { className: 'text-gray-400', icon: null };
+  const thumb = categoryThumbnail[news.category] || categoryThumbnail['Mercati'];
   const [imgError, setImgError] = useState(false);
 
   const timeAgo = (iso: string) => {
@@ -47,7 +58,7 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
     });
   };
 
-  const showImage = news.imageUrl && !imgError;
+  const hasRealImage = news.imageUrl && !imgError;
 
   // Hero: prima notizia, layout grande
   if (isHero) {
@@ -56,7 +67,7 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
         <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${impactBar[news.impact]}`} />
         <div className="pl-6">
           {/* Immagine hero */}
-          {showImage && (
+          {hasRealImage && (
             <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden mb-5">
               <img
                 src={news.imageUrl}
@@ -77,7 +88,7 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
           )}
 
           {/* Meta senza immagine */}
-          {!showImage && (
+          {!hasRealImage && (
             <div className="flex items-center gap-2 mb-3">
               <span className={`flex items-center gap-1.5 text-xs font-semibold ${cat.className}`}>
                 {cat.icon} {news.category}
@@ -89,21 +100,16 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
             </div>
           )}
 
-          {/* Titolo */}
           <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground leading-tight mb-4 group-hover:text-accent transition-colors">
             {news.title}
           </h2>
 
-          {/* Descrizione completa */}
           <p className="text-base text-muted leading-7 mb-5 max-w-3xl">
             {news.description}
           </p>
 
-          {/* Footer */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
-            <span className="font-semibold text-foreground/80">
-              {news.source}
-            </span>
+            <span className="font-semibold text-foreground/80">{news.source}</span>
             <span className="flex items-center gap-1.5">
               <Clock size={14} />
               {formatDate(news.publishedAt)}
@@ -127,11 +133,11 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
     );
   }
 
-  // Standard: notizia con layout orizzontale
+  // Standard: notizia con thumbnail a destra
   return (
     <article className="group relative">
       <div className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-full ${impactBar[news.impact]}`} />
-      <div className="pl-5 flex flex-col md:flex-row gap-5">
+      <div className="pl-5 flex items-center gap-4">
         {/* Contenuto testuale */}
         <div className="flex-1 min-w-0">
           {/* Categoria + impatto */}
@@ -146,12 +152,12 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
           </div>
 
           {/* Titolo */}
-          <h3 className="text-lg font-bold text-foreground leading-snug mb-3 group-hover:text-accent transition-colors">
+          <h3 className="text-base font-bold text-foreground leading-snug mb-2 group-hover:text-accent transition-colors">
             {news.title}
           </h3>
 
           {/* Descrizione */}
-          <p className="text-sm text-muted leading-relaxed mb-4">
+          <p className="text-sm text-muted leading-relaxed mb-3 line-clamp-2">
             {news.description}
           </p>
 
@@ -175,19 +181,21 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
           </div>
         </div>
 
-        {/* Immagine laterale */}
-        {showImage && (
-          <div className="md:w-52 lg:w-64 flex-shrink-0">
-            <div className="relative w-full h-36 md:h-full rounded-lg overflow-hidden">
-              <img
-                src={news.imageUrl}
-                alt={news.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                onError={() => setImgError(true)}
-              />
+        {/* Thumbnail a destra */}
+        <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden hidden sm:block">
+          {hasRealImage ? (
+            <img
+              src={news.imageUrl}
+              alt=""
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-br ${thumb.gradient} flex items-center justify-center`}>
+              <thumb.Icon size={28} className="text-white/60" />
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </article>
   );

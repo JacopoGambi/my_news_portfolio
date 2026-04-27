@@ -129,7 +129,8 @@ async function fetchFromRSS(): Promise<NewsItem[]> {
 
   return unique
     .filter(a => isRelevant(a.title, a.description))
-    .slice(0, 20)
+    .filter(a => a.description.length >= 30)
+    .slice(0, 10)
     .map((a, i) => ({
       id: `rss-${Date.now()}-${i}`,
       title: a.title,
