@@ -70,12 +70,20 @@ export async function GET(request: NextRequest) {
       needsConversion ? fetchUsdToEur() : Promise.resolve(1),
     ]);
 
-    const history: HistoryPoint[] = (result.quotes || [])
-      .filter((q: { close?: number | null; date?: Date | null }) => q.close != null && q.date != null)
-      .map((q: { close?: number | null; date?: Date | null }) => ({
-        date: q.date!.toISOString(),
-        price: Math.round(q.close! * usdToEur * 100) / 100,
-      }));
+    let quotes = (result.quotes || [])
+      .filter((q: { close?: number | null; date?: Date | null }) => q.close != null && q.date != null);
+
+    // Per 1D: tieni solo l'ultima sessione di trading (es. venerdì se oggi è weekend)
+    if (period === '1D' && quotes.length > 0) {
+      const lastDate = new Date(quotes[quotes.length - 1].date!);
+      const lastDay = lastDate.toDateString();
+      quotes = quotes.filter((q: { date?: Date | null }) => new Date(q.date!).toDateString() === lastDay);
+    }
+
+    const history: HistoryPoint[] = quotes.map((q: { close?: number | null; date?: Date | null }) => ({
+      date: q.date!.toISOString(),
+      price: Math.round(q.close! * usdToEur * 100) / 100,
+    }));
 
     return NextResponse.json({ symbol, period, data: history });
   } catch (error) {
@@ -87,7 +95,7 @@ export async function GET(request: NextRequest) {
 function getStartDate(period: Period): Date {
   const now = new Date();
   switch (period) {
-    case '1D': return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    case '1D': return new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000); // 4 giorni per coprire weekend
     case '1W': return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     case '1M': return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
     case '3M': return new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());

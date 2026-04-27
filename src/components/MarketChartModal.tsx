@@ -150,8 +150,12 @@ export default function MarketChartModal({ item, onClose }: MarketChartModalProp
           <div className="h-64 sm:h-72">
             {loading ? (
               <div className="w-full h-full bg-skeleton/30 rounded-xl animate-pulse" />
+            ) : data.length === 0 ? (
+              <div className="w-full h-full flex items-center justify-center text-muted text-sm">
+                Dati non disponibili per questo periodo
+              </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="99%" height="100%" debounce={50}>
                 <AreaChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
                   <defs>
                     <linearGradient id={`gradient-${item.symbol}`} x1="0" y1="0" x2="0" y2="1">

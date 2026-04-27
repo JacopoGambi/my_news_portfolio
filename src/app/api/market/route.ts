@@ -7,7 +7,7 @@ const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 // Cache in-memory per ridurre chiamate e evitare rate limiting
 let cachedData: { data: MarketItem[]; timestamp: number } | null = null;
-const CACHE_TTL = 90_000; // 90 secondi
+const CACHE_TTL = 45_000; // 45 secondi
 
 // Simboli Yahoo Finance (indici, materie prime, valute) — quotati in USD o valuta locale
 const YAHOO_SYMBOLS: Array<{

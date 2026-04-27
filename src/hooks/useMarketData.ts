@@ -8,7 +8,7 @@ export function useMarketData() {
     '/api/market',
     fetcher,
     {
-      refreshInterval: 5 * 60 * 1000, // 5 minuti
+      refreshInterval: 30_000, // 30 secondi
       revalidateOnFocus: true,
       errorRetryCount: 3,
       errorRetryInterval: 10000,
