@@ -55,7 +55,7 @@ export default function NewsByCategory() {
           {filtered.map((item, i) => (
             <div
               key={item.id}
-              className={`py-5 ${i < filtered.length - 1 ? 'border-b border-border-color/50' : ''}`}
+              className={`py-7 ${i < filtered.length - 1 ? 'border-b border-border-color/50' : ''}`}
             >
               <NewsCard news={item} />
             </div>

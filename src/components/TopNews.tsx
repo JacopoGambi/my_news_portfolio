@@ -39,7 +39,7 @@ export default function TopNews() {
           {restNews.map((item, i) => (
             <div
               key={item.id}
-              className={`py-6 ${i < restNews.length - 1 ? 'border-b border-border-color/50' : ''}`}
+              className={`py-7 ${i < restNews.length - 1 ? 'border-b border-border-color/50' : ''}`}
             >
               <NewsCard news={item} />
             </div>

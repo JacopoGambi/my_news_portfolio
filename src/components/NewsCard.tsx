@@ -25,18 +25,18 @@ const impactBar = {
 
 type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
-const categoryThumbnail: Record<NewsCategory, { gradient: string; Icon: IconComponent }> = {
-  'Mercati':        { gradient: 'from-blue-900 to-blue-600',    Icon: TrendingUp },
-  'Geopolitica':    { gradient: 'from-orange-900 to-orange-600', Icon: Globe },
-  'Banche Centrali':{ gradient: 'from-purple-900 to-purple-600', Icon: Landmark },
-  'Earnings':       { gradient: 'from-emerald-900 to-emerald-600', Icon: BarChart3 },
-  'Macro':          { gradient: 'from-cyan-900 to-cyan-600',    Icon: PieChart },
+const categoryFallback: Record<NewsCategory, { gradient: string; Icon: IconComponent }> = {
+  'Mercati':         { gradient: 'from-blue-900 to-blue-600',     Icon: TrendingUp },
+  'Geopolitica':     { gradient: 'from-orange-900 to-orange-600', Icon: Globe },
+  'Banche Centrali': { gradient: 'from-purple-900 to-purple-600', Icon: Landmark },
+  'Earnings':        { gradient: 'from-emerald-900 to-emerald-600', Icon: BarChart3 },
+  'Macro':           { gradient: 'from-cyan-900 to-cyan-600',     Icon: PieChart },
 };
 
 export default function NewsCard({ news, isHero = false }: { news: NewsItem; isHero?: boolean }) {
   const impact = impactConfig[news.impact];
   const cat = categoryConfig[news.category] || { className: 'text-gray-400', icon: null };
-  const thumb = categoryThumbnail[news.category] || categoryThumbnail['Mercati'];
+  const fallback = categoryFallback[news.category] || categoryFallback['Mercati'];
   const [imgError, setImgError] = useState(false);
 
   const timeAgo = (iso: string) => {
@@ -58,7 +58,7 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
     });
   };
 
-  const hasRealImage = news.imageUrl && !imgError;
+  const showImage = news.imageUrl && !imgError;
 
   // Hero: prima notizia, layout grande
   if (isHero) {
@@ -67,7 +67,7 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
         <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${impactBar[news.impact]}`} />
         <div className="pl-6">
           {/* Immagine hero */}
-          {hasRealImage && (
+          {showImage && (
             <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden mb-5">
               <img
                 src={news.imageUrl}
@@ -88,7 +88,7 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
           )}
 
           {/* Meta senza immagine */}
-          {!hasRealImage && (
+          {!showImage && (
             <div className="flex items-center gap-2 mb-3">
               <span className={`flex items-center gap-1.5 text-xs font-semibold ${cat.className}`}>
                 {cat.icon} {news.category}
@@ -137,11 +137,11 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
   return (
     <article className="group relative">
       <div className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-full ${impactBar[news.impact]}`} />
-      <div className="pl-5 flex items-center gap-4">
+      <div className="pl-6 flex items-center gap-5">
         {/* Contenuto testuale */}
         <div className="flex-1 min-w-0">
           {/* Categoria + impatto */}
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2.5">
             <span className={`flex items-center gap-1 text-xs font-semibold ${cat.className}`}>
               {cat.icon} {news.category}
             </span>
@@ -152,12 +152,12 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
           </div>
 
           {/* Titolo */}
-          <h3 className="text-base font-bold text-foreground leading-snug mb-2 group-hover:text-accent transition-colors">
+          <h3 className="text-lg font-bold text-foreground leading-snug mb-2.5 group-hover:text-accent transition-colors">
             {news.title}
           </h3>
 
           {/* Descrizione */}
-          <p className="text-sm text-muted leading-relaxed mb-3 line-clamp-2">
+          <p className="text-sm text-muted leading-relaxed mb-3.5 line-clamp-2">
             {news.description}
           </p>
 
@@ -165,7 +165,7 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
             <span className="font-semibold text-foreground/70">{news.source}</span>
             <span className="flex items-center gap-1">
-              <Clock size={12} />
+              <Clock size={13} />
               {timeAgo(news.publishedAt)}
             </span>
             {news.url && news.url !== '#' && (
@@ -175,15 +175,15 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-accent hover:underline"
               >
-                Leggi <ExternalLink size={12} />
+                Leggi <ExternalLink size={13} />
               </a>
             )}
           </div>
         </div>
 
         {/* Thumbnail a destra */}
-        <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden hidden sm:block">
-          {hasRealImage ? (
+        <div className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden ring-1 ring-white/10">
+          {showImage ? (
             <img
               src={news.imageUrl}
               alt=""
@@ -191,8 +191,8 @@ export default function NewsCard({ news, isHero = false }: { news: NewsItem; isH
               onError={() => setImgError(true)}
             />
           ) : (
-            <div className={`w-full h-full bg-gradient-to-br ${thumb.gradient} flex items-center justify-center`}>
-              <thumb.Icon size={28} className="text-white/60" />
+            <div className={`w-full h-full bg-gradient-to-br ${fallback.gradient} flex items-center justify-center`}>
+              <fallback.Icon size={30} className="text-white/60" />
             </div>
           )}
         </div>

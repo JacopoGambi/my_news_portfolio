@@ -127,20 +127,44 @@ async function fetchFromRSS(): Promise<NewsItem[]> {
     return true;
   });
 
-  return unique
+  const selected = unique
     .filter(a => isRelevant(a.title, a.description))
     .filter(a => a.description.length >= 30)
-    .slice(0, 10)
-    .map((a, i) => ({
-      id: `rss-${Date.now()}-${i}`,
-      title: a.title,
-      description: cleanText(a.description),
-      source: a.source,
-      url: a.link || '#',
-      publishedAt: a.pubDate ? new Date(a.pubDate).toISOString() : new Date().toISOString(),
-      category: categorizeNews(a.title, a.description),
-      impact: estimateImpact(a.title),
-    }));
+    .slice(0, 10);
+
+  // Estrae og:image da ogni articolo in parallelo
+  const ogImages = await Promise.allSettled(
+    selected.map(a => fetchOgImage(a.link))
+  );
+
+  return selected.map((a, i) => ({
+    id: `rss-${Date.now()}-${i}`,
+    title: a.title,
+    description: cleanText(a.description),
+    source: a.source,
+    url: a.link || '#',
+    publishedAt: a.pubDate ? new Date(a.pubDate).toISOString() : new Date().toISOString(),
+    category: categorizeNews(a.title, a.description),
+    impact: estimateImpact(a.title),
+    imageUrl: ogImages[i].status === 'fulfilled' ? ogImages[i].value : undefined,
+  }));
+}
+
+async function fetchOgImage(url: string): Promise<string | undefined> {
+  if (!url || url === '#') return undefined;
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(4000),
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)' },
+    });
+    const html = await res.text();
+    const match =
+      html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    return match?.[1] || undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function GET() {
